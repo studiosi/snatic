@@ -1,0 +1,6 @@
+$f3->route('GET /{{ slug }}',
+    function() {
+        $view = new View;
+        echo $view->render('html/{{ filename }}');
+    }
+);

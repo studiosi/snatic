@@ -1,0 +1,16 @@
+# Theme
+theme: default
+# Home page
+home:
+  file: home.md
+  title: Welcome to SNATIC
+# Pages
+pages:
+  page_1:
+    file: p1.md
+    title: SNATIC, page 1
+    slug: page1
+  page_2:
+    file: p2.md
+    title: SNATIC, page 2
+    slug: page2

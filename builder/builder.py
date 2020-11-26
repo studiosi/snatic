@@ -9,7 +9,7 @@ except ImportError:
 
 from .configuration_exception import ConfigurationException
 from markdown import markdown
-from jinja2 import Template
+from jinja2 import Template, Environment, FileSystemLoader
 from setup.executor import Executor
 from shutil import rmtree, copytree
 
@@ -24,7 +24,19 @@ class Builder:
 
     def __init__(self):
         self.__config = None
+        self.__theme_template_env = None
+        self.__internal_template_env = None
         self.read_config()
+        self.create_template_environments()
+
+    # Creates the templating environment so templates can be composed
+    def create_template_environments(self):
+        self.__theme_template_env = Environment(
+            loader=FileSystemLoader(os.path.join('themes/', self.__config['theme']))
+        )
+        self.__internal_template_env = Environment(
+            loader=FileSystemLoader('builder/templates')
+        )
 
     # Reads the configuration file
     def read_config(self):
@@ -54,12 +66,6 @@ class Builder:
     def get_content_filename(filename):
         return os.path.join('data/content', filename)
 
-    # Get template file name
-    def get_template_filename(self, name):
-        template_name = name + '.j2'
-        theme = self.__config['theme']
-        return os.path.join('themes/', theme, template_name)
-
     # Gets the output filename
     @staticmethod
     def get_output_filename(name, filetype):
@@ -81,7 +87,7 @@ class Builder:
     # Builds a single page
     def build_page(self, page_cfg, is_home=False):
         content_filename = Builder.get_content_filename(page_cfg['file'])
-        template_filename = self.get_template_filename('page')
+        template = self.__theme_template_env.get_template('page.j2')
         if is_home:
             output_filename = Builder.get_output_filename('index', BuilderOutputTypes.TYPE_HTML)
             page_title = self.__config['home']['title']
@@ -92,7 +98,7 @@ class Builder:
                 open(output_filename, 'w') as f_output:
             md_content = f_content.read()
             html_content = markdown(md_content)
-            f_output.write(Builder.template_render(template_filename, {
+            f_output.write(template.render({
                 'title': page_title,
                 'content': html_content
             }))
@@ -130,16 +136,13 @@ class Builder:
         print('Building app...', end='')
         # Generate routes for static pages
         routes_content = ''
+        route_template = self.__internal_template_env.get_template('route.j2')
         for route in route_data:
-            routes_content += Builder.template_render('builder/templates/route.j2', route)
+            routes_content += route_template.render(route)
         # Generating F3 Application
         with open('site/index.php', 'w') as f_output:
-            f_output.write(Builder.template_render(
-                'builder/templates/application.j2',
-                {
-                    'routes': routes_content
-                }
-            ))
+            app_template = self.__internal_template_env.get_template('application.j2')
+            f_output.write(app_template.render({'routes': routes_content}))
         print('FINISHED')
         # Generating .htaccess
         print('Writing htaccess... ', end='')

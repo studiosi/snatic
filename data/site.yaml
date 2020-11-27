@@ -1,10 +1,12 @@
-# Theme
+# = Theme =
 theme: default
-# Home page
+# = Name =
+name: SNATIC
+# = Home page =
 home:
   file: home.md
   title: Welcome to SNATIC
-# Pages
+# = Pages =
 pages:
   page_1:
     file: p1.md
@@ -14,3 +16,21 @@ pages:
     file: p2.md
     title: SNATIC, page 2
     slug: page2
+# = Menu =
+# In the default theme elements with children can't be links
+# for accessibility, but we keep the option for other themes
+menu:
+  item_1:
+    title: Home
+    page_id: home
+  item_2:
+    title: Link 1
+    page_id: page_1
+  item_3:
+    title: Link 1.1
+    parent_id: item_2
+    page_id: page_2
+  item_4:
+    title: Link 2
+    page_id: page_1
+# TODO: Collections (archives)

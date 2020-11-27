@@ -12,6 +12,7 @@ from markdown import markdown
 from jinja2 import Template, Environment, FileSystemLoader
 from setup.executor import Executor
 from shutil import rmtree, copytree
+from .menu import Menu
 
 
 class BuilderOutputTypes(Enum):
@@ -28,6 +29,7 @@ class Builder:
         self.__internal_template_env = None
         self.read_config()
         self.create_template_environments()
+        self.__menu = Menu(self.__config)
 
     # Creates the templating environment so templates can be composed
     def create_template_environments(self):
@@ -45,6 +47,8 @@ class Builder:
 
     # Checks that the configuration is OK
     def check_config(self):
+        if 'name' not in self.__config.keys():
+            raise ConfigurationException('Name not defined in configuration')
         if 'home' not in self.__config.keys():
             raise ConfigurationException('Home not defined in configuration')
         if 'theme' not in self.__config.keys():
@@ -99,8 +103,10 @@ class Builder:
             md_content = f_content.read()
             html_content = markdown(md_content)
             f_output.write(template.render({
+                'name': self.__config["name"],
                 'title': page_title,
-                'content': html_content
+                'content': html_content,
+                'menu': self.__menu.get_menu()
             }))
 
     # Builds the site

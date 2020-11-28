@@ -41,7 +41,7 @@ class Menu:
             self.__menu.append({
                 'item_id': page['item_id'],
                 'title': page['title'],
-                'url': Menu.__get_url_for_page(config, page['page_id']),
+                'url': Menu.__get_url_for_page(config, page['element_id']),
                 'children': []
             })
         # Second, find the children of those and add them to the menu: second level items
@@ -51,7 +51,7 @@ class Menu:
             parent_item['children'].append({
                 'item_id': page['item_id'],
                 'title': page['title'],
-                'url': Menu.__get_url_for_page(config, page['page_id']),
+                'url': Menu.__get_url_for_page(config, page['element_id']),
                 'children': []
             })
         pass

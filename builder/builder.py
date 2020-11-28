@@ -1,4 +1,5 @@
 import os
+
 from enum import Enum
 from yaml import load
 
@@ -7,11 +8,13 @@ try:
 except ImportError:
     from yaml import Loader as Loader
 
-from .configuration_exception import ConfigurationException
 from markdown import markdown
 from jinja2 import Template, Environment, FileSystemLoader
 from setup.executor import Executor
 from shutil import rmtree, copytree
+from datetime import datetime
+
+from .configuration_exception import ConfigurationException
 from .menu import Menu
 
 
@@ -34,7 +37,7 @@ class Builder:
     # Creates the templating environment so templates can be composed
     def create_template_environments(self):
         self.__theme_template_env = Environment(
-            loader=FileSystemLoader(os.path.join('themes/', self.__config['theme']))
+            loader=FileSystemLoader(os.path.join('themes/', self.__config['site_config']['theme']))
         )
         self.__internal_template_env = Environment(
             loader=FileSystemLoader('builder/templates')
@@ -47,14 +50,16 @@ class Builder:
 
     # Checks that the configuration is OK
     def check_config(self):
-        if 'name' not in self.__config.keys():
+        if 'name' not in self.__config['site_config'].keys():
             raise ConfigurationException('Name not defined in configuration')
         if 'home' not in self.__config.keys():
             raise ConfigurationException('Home not defined in configuration')
-        if 'theme' not in self.__config.keys():
-            raise ConfigurationException('Theme not defined in configuration')
-        if not os.path.exists(os.path.join('themes/', self.__config['theme'])):
-            raise ConfigurationException(f'Theme {self.__config["theme"]} not found')
+        if 'site_config' not in self.__config.keys():
+            raise ConfigurationException('Site configuration not defined')
+        if 'theme' not in self.__config['site_config'].keys():
+            raise ConfigurationException('Theme not defined in site configuration')
+        if not os.path.exists(os.path.join('themes/', self.__config['site_config']['theme'])):
+            raise ConfigurationException(f'Theme {self.__config["site_config"]["theme"]} not found')
 
     # Install PHP dependencies into the site
     @staticmethod
@@ -103,10 +108,12 @@ class Builder:
             md_content = f_content.read()
             html_content = markdown(md_content)
             f_output.write(template.render({
-                'name': self.__config["name"],
+                'name': self.__config['site_config']['name'],
                 'title': page_title,
                 'content': html_content,
-                'menu': self.__menu.get_menu()
+                'menu': self.__menu.get_menu(),
+                'creation_date': page_cfg['creation_date'],
+                'build_date': datetime.now().strftime(self.__config['site_config']['dt_format'])
             }))
 
     # Builds the site

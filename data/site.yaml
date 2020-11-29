@@ -6,23 +6,26 @@ site_config:
   theme: default
   # Datetime format: day/month/year hours:minutes
   dt_format: '%d/%m/%Y %H:%M'
-# = Home page =
-home:
-  file: home.md
-  title: Welcome to SNATIC
-  creation_date: '01/01/1980 12:45'
 # = Pages =
 pages:
+  # Home has to exist and has no slug
+  home:
+    file: home.md
+    title: Welcome to SNATIC
+    creation_date: '01/01/1980 12:45'
+    type: page
   page_1:
     file: p1.md
     title: SNATIC, page 1
     slug: page1
     creation_date: '02/01/1980 12:45'
+    type: page
   page_2:
     file: p2.md
     title: SNATIC, page 2
     slug: page2
     creation_date: '03/01/1980 12:45'
+    type: page
 # = Menu =
 # In the default theme elements with children can't be links
 # for accessibility, but we keep the option for other themes

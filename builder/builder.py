@@ -52,7 +52,7 @@ class Builder:
     def check_config(self):
         if 'name' not in self.__config['site_config'].keys():
             raise ConfigurationException('Name not defined in configuration')
-        if 'home' not in self.__config.keys():
+        if 'home' not in self.__config['pages'].keys():
             raise ConfigurationException('Home not defined in configuration')
         if 'site_config' not in self.__config.keys():
             raise ConfigurationException('Site configuration not defined')
@@ -79,8 +79,7 @@ class Builder:
     @staticmethod
     def get_output_filename(name, filetype):
         if filetype == BuilderOutputTypes.TYPE_HTML:
-            filename = name + '.html'
-            return os.path.join('site/html', filename)
+            return os.path.join('site/html', name)
 
     # Renders a template and returns the rendered contents
     @staticmethod
@@ -94,15 +93,11 @@ class Builder:
                 return template_renderer.render()
 
     # Builds a single page
-    def build_page(self, page_cfg, is_home=False):
+    def build_page(self, page_cfg):
         content_filename = Builder.get_content_filename(page_cfg['file'])
         template = self.__theme_template_env.get_template('page.j2')
-        if is_home:
-            output_filename = Builder.get_output_filename('index', BuilderOutputTypes.TYPE_HTML)
-            page_title = self.__config['home']['title']
-        else:
-            output_filename = Builder.get_output_filename(page_cfg['slug'], BuilderOutputTypes.TYPE_HTML)
-            page_title = page_cfg['title']
+        output_filename = Builder.get_output_filename(page_cfg['filename'], BuilderOutputTypes.TYPE_HTML)
+        page_title = page_cfg['title']
         with open(content_filename, 'r') as f_content, \
                 open(output_filename, 'w') as f_output:
             md_content = f_content.read()
@@ -115,6 +110,10 @@ class Builder:
                 'creation_date': page_cfg['creation_date'],
                 'build_date': datetime.now().strftime(self.__config['site_config']['dt_format'])
             }))
+
+    # Builds a single archive page
+    def build_archive(self, archive_cfg):
+        pass
 
     # Builds the site
     def build(self):
@@ -129,22 +128,29 @@ class Builder:
         os.mkdir('site/html')
         # Install PHP dependencies on site folder
         Builder.install_php_dependencies()
-        # Build HOME
-        # Read content from MD file as comes in the config
-        route_data = []
         print('Building pages... ', end='')
-        self.build_page(self.__config['home'], is_home=True)
-        route_data.append({
-            'slug': '',
-            'filename': 'index.html'
-        })
-        # Build the rest of the pages
+        # Build pages
+        route_data = []
         for k in self.__config['pages'].keys():
-            self.build_page(self.__config['pages'][k])
-            route_data.append({
-                'slug': self.__config['pages'][k]['slug'],
-                'filename': f'{ self.__config["pages"][k]["slug"] }.html'
-            })
+            cfg = self.__config['pages'][k]
+            if k.lower() == 'home':
+                cfg['slug'] = ''
+                cfg['filename'] = 'index.html'
+            else:
+                cfg['slug'] = self.__config["pages"][k]["slug"]
+                cfg['filename'] = f'{self.__config["pages"][k]["slug"]}.html'
+            built = False
+            if self.__config['pages'][k]['type'].lower() == 'page':
+                self.build_page(cfg)
+                built = True
+            elif self.__config['pages'][k]['type'].lower() == 'archive':
+                self.build_archive(cfg)
+                built = True
+            if built:
+                route_data.append({
+                    'slug': cfg['slug'],
+                    'filename': cfg['filename'],
+                })
         print('FINISHED')
         print('Building app...', end='')
         # Generate routes for static pages

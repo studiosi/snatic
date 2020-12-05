@@ -1,46 +1,100 @@
 # = Site Configuration =
 site_config:
   # Name of the site
-  name: SNATIC
+  name: 'SNATIC'
   # Theme to be used by the site
-  theme: default
+  theme: 'default'
   # Datetime format: day/month/year hours:minutes
   dt_format: '%d/%m/%Y %H:%M'
+# = Categories =
+categories:
+  cat1:
+    title: 'Category 1'
+  cat2:
+    title: 'Category 2'
 # = Pages =
 pages:
-  # Home has to exist and has no slug
+  # Home has to exist and has no slug/categories
   home:
-    file: home.md
-    title: Welcome to SNATIC
+    type: 'page'
+    file: 'home.md'
+    title: 'Welcome to SNATIC'
     creation_date: '01/01/1980 12:45'
-    type: page
   page_1:
-    file: p1.md
-    title: SNATIC, page 1
-    slug: page1
+    type: 'page'
+    file: 'p1.md'
+    title: 'SNATIC, page 1'
+    slug: 'page1'
     creation_date: '02/01/1980 12:45'
-    type: page
+    categories: 'cat1,cat2'
   page_2:
-    file: p2.md
-    title: SNATIC, page 2
-    slug: page2
+    type: 'page'
+    file: 'p2.md'
+    title: 'SNATIC, page 2'
+    slug: 'page2'
     creation_date: '03/01/1980 12:45'
-    type: page
+    categories: 'cat1'
+  page_3:
+    type: 'page'
+    file: 'p3.md'
+    title: 'SNATIC, page 3'
+    slug: 'page3'
+    creation_date: '04/01/1980 12:45'
+    categories: 'cat3'
+  # TODO: Collections (archives)
+  archive_1:
+    type: 'archive'
+    title: 'Archive: Category 1'
+    categories: 'cat1'
+    slug: 'archive-cat-1'
+  archive_2:
+    type: 'archive'
+    title: 'Archive: All categories'
+    categories: '*'
+    slug: 'archive-cat-2'
+  archive_3:
+    type: 'archive'
+    title: 'Archive: Category 1, Category 2'
+    categories: 'cat1,cat2'
+    slug: 'archive-cat-3'
+  archive_4:
+    type: 'archive'
+    title: 'Archive: Category 3'
+    categories: 'cat3'
+    slug: 'archive-cat-4'
 # = Menu =
 # In the default theme elements with children can't be links
 # for accessibility, but we keep the option for other themes
 menu:
   item_1:
-    title: Home
-    element_id: home
+    title: 'Home'
+    element_id: 'home'
   item_2:
-    title: Link 1
-    element_id: page_1
+    title: 'Link 1'
+    element_id: '#'
   item_3:
-    title: Link 1.1
-    parent_id: item_2
-    element_id: page_2
+    title: 'Link 1.1'
+    parent_id: 'item_2'
+    element_id: 'page_2'
   item_4:
-    title: Link 2
-    element_id: page_1
-# TODO: Collections (archives)
+    title: 'Link 2'
+    element_id: 'page_1'
+  item_5:
+    title: 'Archives'
+    element_id: '#'
+  item_6:
+    title: 'Cat1'
+    parent_id: 'item_5'
+    element_id: 'archive_1'
+  item_7:
+    title: 'All'
+    parent_id: 'item_5'
+    element_id: 'archive_2'
+  item_8:
+    title: 'Cat1 and Cat2'
+    parent_id: 'item_5'
+    element_id: 'archive_3'
+  item_9:
+    title: 'Cat3'
+    parent_id: 'item_5'
+    element_id: 'archive_4'

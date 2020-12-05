@@ -1,0 +1,30 @@
+{% extends "base.j2" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="row my-5">
+        <div class="col">
+            <h2>{{ title }}</h2>
+        </div>
+    </div>
+    <div id="archives-wrapper" class="row">
+        <div id="archives-container" class="col">
+            {% if pages %}
+                <ul>
+                    {% for page in pages %}
+                        <li>
+                            {{ page.creation_date }} - <a href="{{ page.url }}">{{ page.page_title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No items found...</p>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

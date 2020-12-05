@@ -18,10 +18,12 @@ class Menu:
         return top_level_pages
 
     @staticmethod
-    def __get_url_for_page(config, page_id):
+    def get_url_for_page(config, page_id):
         if page_id.lower() == 'home':
-            return "/"
-        return "/" + config['pages'][page_id]['slug']
+            return '/'
+        elif page_id == '#':
+            return '#'
+        return '/' + config['pages'][page_id]['slug']
 
     @staticmethod
     def get_child_pages(config, page_ids):
@@ -41,7 +43,7 @@ class Menu:
             self.__menu.append({
                 'item_id': page['item_id'],
                 'title': page['title'],
-                'url': Menu.__get_url_for_page(config, page['element_id']),
+                'url': Menu.get_url_for_page(config, page['element_id']),
                 'children': []
             })
         # Second, find the children of those and add them to the menu: second level items
@@ -51,10 +53,9 @@ class Menu:
             parent_item['children'].append({
                 'item_id': page['item_id'],
                 'title': page['title'],
-                'url': Menu.__get_url_for_page(config, page['element_id']),
+                'url': Menu.get_url_for_page(config, page['element_id']),
                 'children': []
             })
-        pass
 
     def get_menu(self):
         return self.__menu

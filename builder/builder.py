@@ -1,6 +1,5 @@
 import os
 
-from enum import Enum
 from yaml import load
 
 try:
@@ -8,20 +7,14 @@ try:
 except ImportError:
     from yaml import Loader as Loader
 
-from markdown import markdown
 from jinja2 import Template, Environment, FileSystemLoader
-from setup.executor import Executor
 from shutil import rmtree, copytree
-from datetime import datetime
 
 from .configuration_exception import ConfigurationException
 from .menu import Menu
 
-
-class BuilderOutputTypes(Enum):
-    TYPE_NONE = 0
-    TYPE_HTML = 1
-    TYPE_TEMPLATE = 2
+from .type_builders import *
+from .builder_utils import BuilderUtils
 
 
 class Builder:
@@ -61,89 +54,6 @@ class Builder:
         if not os.path.exists(os.path.join('themes/', self.__config['site_config']['theme'])):
             raise ConfigurationException(f'Theme {self.__config["site_config"]["theme"]} not found')
 
-    # Install PHP dependencies into the site
-    @staticmethod
-    def install_php_dependencies():
-        print('Installing PHP dependencies... ', end='')
-        os.chdir('site/')
-        Executor.execute_command(['composer', 'require', 'bcosca/fatfree'])
-        os.chdir('..')
-        print('FINISHED')
-
-    # Get content file name
-    @staticmethod
-    def get_content_filename(filename):
-        return os.path.join('data/content', filename)
-
-    # Gets the output filename
-    @staticmethod
-    def get_output_filename(name, filetype):
-        if filetype == BuilderOutputTypes.TYPE_HTML:
-            return os.path.join('site/html', name)
-
-    # Renders a template and returns the rendered contents
-    @staticmethod
-    def template_render(template_filename, data=None):
-        with open(template_filename, 'r') as f:
-            template_content = f.read()
-            template_renderer = Template(template_content)
-            if data is not None:
-                return template_renderer.render(data)
-            else:
-                return template_renderer.render()
-
-    # Builds a single page
-    def build_page(self, page_cfg):
-        content_filename = Builder.get_content_filename(page_cfg['file'])
-        template = self.__theme_template_env.get_template('page.j2')
-        output_filename = Builder.get_output_filename(page_cfg['filename'], BuilderOutputTypes.TYPE_HTML)
-        page_title = page_cfg['title']
-        with open(content_filename, 'r') as f_content, \
-                open(output_filename, 'w') as f_output:
-            md_content = f_content.read()
-            html_content = markdown(md_content)
-            f_output.write(template.render({
-                'name': self.__config['site_config']['name'],
-                'title': page_title,
-                'content': html_content,
-                'menu': self.__menu.get_menu(),
-                'creation_date': page_cfg['creation_date'],
-                'build_date': datetime.now().strftime(self.__config['site_config']['dt_format'])
-            }))
-
-    # Builds a single archive page
-    def build_archive(self, archive_cfg, pages_cfg):
-        pages = [
-            {
-                'page_id': k,
-                'page_title': pages_cfg[k]['title'],
-                'url': Menu.get_url_for_page(self.__config, k),
-                'categories': [category.lower() for category in pages_cfg[k]['categories'].split(',')],
-                'creation_date': pages_cfg[k]['creation_date']
-            }
-            for k in pages_cfg.keys()
-            if pages_cfg[k]['type'].lower() != 'archive' and k.lower() != 'home'
-        ]
-        if archive_cfg['categories'] != '*':
-            filtered_pages = []
-            archive_categories = set([category.lower() for category in archive_cfg['categories'].split(',')])
-            for page in pages:
-                page_categories = set(page['categories'])
-                if len(archive_categories.intersection(page_categories)) > 0:
-                    filtered_pages.append(page)
-            pages = filtered_pages
-        # Build the information to pass to the template
-        template = self.__theme_template_env.get_template('archive.j2')
-        output_filename = Builder.get_output_filename(archive_cfg['slug'] + ".html", BuilderOutputTypes.TYPE_HTML)
-        page_title = archive_cfg['title']
-        with open(output_filename, 'w') as f_output:
-            f_output.write(template.render({
-                'name': self.__config['site_config']['name'],
-                'menu': self.__menu.get_menu(),
-                'title': page_title,
-                'pages': pages
-            }))
-
     # Builds the site
     def build(self):
         # Check the configuration
@@ -156,7 +66,7 @@ class Builder:
         os.mkdir('site/')
         os.mkdir('site/html')
         # Install PHP dependencies on site folder
-        Builder.install_php_dependencies()
+        BuilderUtils.install_php_dependencies()
         print('Building pages... ', end='')
         # Build pages
         route_data = []
@@ -170,10 +80,10 @@ class Builder:
                 cfg['filename'] = f'{self.__config["pages"][k]["slug"]}.html'
             built = False
             if self.__config['pages'][k]['type'].lower() == 'page':
-                self.build_page(cfg)
+                PageBuilder.build(self.__config, cfg, self.__menu, self.__theme_template_env)
                 built = True
             elif self.__config['pages'][k]['type'].lower() == 'archive':
-                self.build_archive(cfg, self.__config['pages'])
+                ArchiveBuilder.build(cfg, self.__config['pages'])
                 built = True
             if built:
                 route_data.append({
@@ -195,7 +105,7 @@ class Builder:
         # Generating .htaccess
         print('Writing htaccess... ', end='')
         with open('site/.htaccess', 'w') as f_output:
-            f_output.write(Builder.template_render('builder/templates/htaccess.j2'))
+            f_output.write(BuilderUtils.template_render('builder/templates/htaccess.j2'))
         print('FINISHED')
         # Copying assets from data to site
         print('Copying assets... ', end='')

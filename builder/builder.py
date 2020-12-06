@@ -7,14 +7,14 @@ try:
 except ImportError:
     from yaml import Loader as Loader
 
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from shutil import rmtree, copytree
 
-from .configuration_exception import ConfigurationException
 from .menu import Menu
 
 from .type_builders import *
 from .builder_utils import BuilderUtils
+from .config_utils import ConfigUtils
 
 
 class Builder:
@@ -41,23 +41,10 @@ class Builder:
         with open('data/site.yaml', 'r') as config_file:
             self.__config = load(config_file.read(), Loader=Loader)
 
-    # Checks that the configuration is OK
-    def check_config(self):
-        if 'name' not in self.__config['site_config'].keys():
-            raise ConfigurationException('Name not defined in configuration')
-        if 'home' not in self.__config['pages'].keys():
-            raise ConfigurationException('Home not defined in configuration')
-        if 'site_config' not in self.__config.keys():
-            raise ConfigurationException('Site configuration not defined')
-        if 'theme' not in self.__config['site_config'].keys():
-            raise ConfigurationException('Theme not defined in site configuration')
-        if not os.path.exists(os.path.join('themes/', self.__config['site_config']['theme'])):
-            raise ConfigurationException(f'Theme {self.__config["site_config"]["theme"]} not found')
-
     # Builds the site
     def build(self):
         # Check the configuration
-        self.check_config()
+        ConfigUtils.check_config(self.__config)
         # If site directory exists delete its contents
         if os.path.exists('site/'):
             print('Deleting the current site... ', end='')

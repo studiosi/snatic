@@ -41,7 +41,7 @@ pages:
     slug: 'page3'
     creation_date: '04/01/1980 12:45'
     categories: 'cat3'
-  # TODO: Collections (archives)
+  # Pages that are archives/collections
   archive_1:
     type: 'archive'
     title: 'Archive: Category 1'

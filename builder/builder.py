@@ -1,5 +1,5 @@
-import os
-
+from os.path import join
+from jinja2 import Environment, FileSystemLoader
 from yaml import load
 
 try:
@@ -7,11 +7,7 @@ try:
 except ImportError:
     from yaml import Loader as Loader
 
-from jinja2 import Environment, FileSystemLoader
-from shutil import rmtree, copytree
-
 from .menu import Menu
-
 from .type_builders import *
 from .builder_utils import BuilderUtils
 from .config_utils import ConfigUtils
@@ -30,7 +26,7 @@ class Builder:
     # Creates the templating environment so templates can be composed
     def create_template_environments(self):
         self.__theme_template_env = Environment(
-            loader=FileSystemLoader(os.path.join('themes/', self.__config['site_config']['theme']))
+            loader=FileSystemLoader(join('themes/', self.__config['site_config']['theme']))
         )
         self.__internal_template_env = Environment(
             loader=FileSystemLoader('builder/templates')
@@ -46,12 +42,7 @@ class Builder:
         # Check the configuration
         ConfigUtils.check_config(self.__config)
         # If site directory exists delete its contents
-        if os.path.exists('site/'):
-            print('Deleting the current site... ', end='')
-            rmtree('site/')
-            print('FINISHED')
-        os.mkdir('site/')
-        os.mkdir('site/html')
+        BuilderUtils.delete_current_site()
         # Install PHP dependencies on site folder
         BuilderUtils.install_php_dependencies()
         print('Building pages... ', end='')
@@ -90,12 +81,6 @@ class Builder:
             f_output.write(app_template.render({'routes': routes_content}))
         print('FINISHED')
         # Generating .htaccess
-        print('Writing htaccess... ', end='')
-        with open('site/.htaccess', 'w') as f_output:
-            f_output.write(BuilderUtils.template_render('builder/templates/htaccess.j2'))
-        print('FINISHED')
+        BuilderUtils.create_htaccess()
         # Copying assets from data to site
-        print('Copying assets... ', end='')
-        if os.path.exists('data/assets'):
-            copytree('data/assets', 'site/assets')
-        print('FINISHED')
+        BuilderUtils.copy_assets()

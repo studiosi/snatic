@@ -2,6 +2,7 @@ import os
 from enum import Enum
 from jinja2 import Template
 from setup.executor import Executor
+from shutil import rmtree, copytree
 
 
 class BuilderOutputTypes(Enum):
@@ -37,4 +38,27 @@ class BuilderUtils:
         os.chdir('site/')
         Executor.execute_command(['composer', 'require', 'bcosca/fatfree'])
         os.chdir('..')
+        print('FINISHED')
+
+    @staticmethod
+    def delete_current_site():
+        if os.path.exists('site/'):
+            print('Deleting the current site... ', end='')
+            rmtree('site/')
+            print('FINISHED')
+        os.mkdir('site/')
+        os.mkdir('site/html')
+
+    @staticmethod
+    def create_htaccess():
+        print('Writing htaccess... ', end='')
+        with open('site/.htaccess', 'w') as f_output:
+            f_output.write(BuilderUtils.template_render('builder/templates/htaccess.j2'))
+        print('FINISHED')
+
+    @staticmethod
+    def copy_assets():
+        print('Copying assets... ', end='')
+        if os.path.exists('data/assets'):
+            copytree('data/assets', 'site/assets')
         print('FINISHED')

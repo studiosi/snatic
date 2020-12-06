@@ -83,7 +83,7 @@ class Builder:
                 PageBuilder.build(self.__config, cfg, self.__menu, self.__theme_template_env)
                 built = True
             elif self.__config['pages'][k]['type'].lower() == 'archive':
-                ArchiveBuilder.build(cfg, self.__config['pages'])
+                ArchiveBuilder.build(self.__config, cfg, self.__config['pages'], self.__menu, self.__theme_template_env)
                 built = True
             if built:
                 route_data.append({

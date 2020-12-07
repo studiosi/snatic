@@ -6,6 +6,9 @@ site_config:
   theme: 'default'
   # Datetime format: day/month/year hours:minutes
   dt_format: '%d/%m/%Y %H:%M'
+  # Tells the system whether to minify the HTML output
+  # or not (optional).
+  minify_html: 'false'
 # = Categories =
 categories:
   cat1:

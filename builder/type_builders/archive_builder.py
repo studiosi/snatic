@@ -1,5 +1,6 @@
 from ..builder_utils import BuilderUtils, BuilderOutputTypes
 from ..menu import Menu
+from htmlmin import minify
 
 
 class ArchiveBuilder:
@@ -44,10 +45,14 @@ class ArchiveBuilder:
             BuilderOutputTypes.TYPE_HTML
         )
         page_title = archive_cfg['title']
+        content = template.render({
+            'name': cfg['site_config']['name'],
+            'menu': menu.get_menu(),
+            'title': page_title,
+            'pages': pages
+        })
+        if 'minify_html' in cfg['site_config'].keys() and \
+                cfg['site_config']['minify_html'].lower() == 'true':
+            content = minify(content)
         with open(output_filename, 'w') as f_output:
-            f_output.write(template.render({
-                'name': cfg['site_config']['name'],
-                'menu': menu.get_menu(),
-                'title': page_title,
-                'pages': pages
-            }))
+            f_output.write(content)

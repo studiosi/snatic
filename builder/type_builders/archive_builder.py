@@ -1,6 +1,8 @@
+from datetime import datetime
+from htmlmin import minify
+
 from ..builder_utils import BuilderUtils, BuilderOutputTypes
 from ..menu import Menu
-from htmlmin import minify
 
 
 class ArchiveBuilder:
@@ -49,7 +51,8 @@ class ArchiveBuilder:
             'name': cfg['site_config']['name'],
             'menu': menu.get_menu(),
             'title': page_title,
-            'pages': pages
+            'pages': pages,
+            'build_date': datetime.now().strftime(cfg['site_config']['dt_format'])
         })
         if 'minify_html' in cfg['site_config'].keys() and \
                 cfg['site_config']['minify_html'].lower() == 'true':

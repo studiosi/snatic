@@ -62,3 +62,11 @@ class BuilderUtils:
         if os.path.exists('data/assets'):
             copytree('data/assets', 'site/assets')
         print('FINISHED')
+
+    @staticmethod
+    def copy_theme_assets(theme):
+        print('Copying theme assets... ', end='')
+        theme_assets_path = os.path.join('themes/', theme + '/', 'theme-assets')
+        if os.path.exists(theme_assets_path):
+            copytree(theme_assets_path, 'site/theme-assets')
+        print('FINISHED')

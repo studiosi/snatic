@@ -84,3 +84,5 @@ class Builder:
         BuilderUtils.create_htaccess()
         # Copying assets from data to site
         BuilderUtils.copy_assets()
+        # Copying assets from theme to site
+        BuilderUtils.copy_theme_assets(self.__config['site_config']['theme'])

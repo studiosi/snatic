@@ -14,6 +14,7 @@ discrimination.
 - Pages
 - Menu
 - Archives/Page collections
+- Minification of the static pages
 
 ## PRODUCT ROADMAP
 

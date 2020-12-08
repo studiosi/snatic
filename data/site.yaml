@@ -9,6 +9,8 @@ site_config:
   # Tells the system whether to minify the HTML output
   # or not (optional).
   minify_html: 'false'
+  # Tells the system whether to generate .htaccess or not
+  generate_htaccess: 'false'
 # = Categories =
 categories:
   cat1:
@@ -47,6 +49,7 @@ pages:
     creation_date: '04/01/1980 12:45'
     categories: 'cat3'
   # Pages that are archives/collections
+  # These have no file
   archive_1:
     type: 'archive'
     title: 'Archive: Category 1'

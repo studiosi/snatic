@@ -1,6 +1,13 @@
+bcrypt==3.2.0
+cffi==1.14.4
 click==7.1.2
+cryptography==3.2.1
 htmlmin==0.1.12
 Jinja2==2.11.2
 Markdown==3.3.3
 MarkupSafe==1.1.1
+paramiko==2.7.2
+pycparser==2.20
+PyNaCl==1.4.0
 PyYAML==5.3.1
+six==1.15.0

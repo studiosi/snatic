@@ -1,0 +1,7 @@
+upload:
+  host: 'ftp.example.com'
+  port: '22'
+  path: '/'
+  user: 'user'
+  password: 'pass'
+  upload_htaccess: 'false'

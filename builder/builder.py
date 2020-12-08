@@ -80,8 +80,9 @@ class Builder:
             app_template = self.__internal_template_env.get_template('application.j2')
             f_output.write(app_template.render({'routes': routes_content}))
         print('FINISHED')
-        # Generating .htaccess
-        BuilderUtils.create_htaccess()
+        # Generating .htaccess if configured to do so
+        if self.__config['site_config']['generate_htaccess'].lower() != 'false':
+            BuilderUtils.create_htaccess()
         # Copying assets from data to site
         BuilderUtils.copy_assets()
         # Copying assets from theme to site

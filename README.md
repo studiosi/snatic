@@ -15,6 +15,7 @@ discrimination.
 - Menu
 - Archives/Page collections
 - Minification of the static pages
+- SFTP deployment
 
 ## PRODUCT ROADMAP
 
